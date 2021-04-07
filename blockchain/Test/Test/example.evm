@@ -1,0 +1,63 @@
+    /* "Example.sol":26:134  contract example{... */
+  mstore(0x40, 0x80)
+    /* "Example.sol":73:132  constructor () public {... */
+  callvalue
+    /* "--CODEGEN--":8:17   */
+  dup1
+    /* "--CODEGEN--":5:7   */
+  iszero
+  tag_1
+  jumpi
+    /* "--CODEGEN--":30:31   */
+  0x00
+    /* "--CODEGEN--":27:28   */
+  dup1
+    /* "--CODEGEN--":20:32   */
+  revert
+    /* "--CODEGEN--":5:7   */
+tag_1:
+    /* "Example.sol":73:132  constructor () public {... */
+  pop
+    /* "Example.sol":117:127  msg.sender */
+  caller
+    /* "Example.sol":101:114  contractOwner */
+  0x00
+  dup1
+    /* "Example.sol":101:127  contractOwner = msg.sender */
+  0x0100
+  exp
+  dup2
+  sload
+  dup2
+  0xffffffffffffffffffffffffffffffffffffffff
+  mul
+  not
+  and
+  swap1
+  dup4
+  0xffffffffffffffffffffffffffffffffffffffff
+  and
+  mul
+  or
+  swap1
+  sstore
+  pop
+    /* "Example.sol":26:134  contract example{... */
+  dataSize(sub_0)
+  dup1
+  dataOffset(sub_0)
+  0x00
+  codecopy
+  0x00
+  return
+stop
+
+sub_0: assembly {
+        /* "Example.sol":26:134  contract example{... */
+      mstore(0x40, 0x80)
+      0x00
+      dup1
+      revert
+
+    auxdata: 0xa265627a7a72315820cf01cc32c035eec726a0abe82793f9e9dd681896ae6f1f1614638a339d740df264736f6c63430005100032
+}

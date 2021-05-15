@@ -276,6 +276,7 @@ contract VoteStageFactory is StageFactory {
     
     address investor = msg.sender;
     uint256 investment = msg.value;
+    uint256 refundinvestment;
     
     if(investment + investmentReceived > totalAmount){
         refundinvestment = investment - totalAmount + investmentReceived;
@@ -337,3 +338,4 @@ contract VotingStage is VoteStageFactory,ReleasableSimpleCoin{
       
   }
 }
+

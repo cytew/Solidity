@@ -128,6 +128,7 @@ contract StageFactory is Ownable{
         uint investment_till_now;  // 현재까지 초이스별 투자받은 금액
         address[] participantsOfChoice; // 초이스별 참가한 사람들 이름
         uint256 numOfParticipants;  // 초이스별 참가한 사람들 숫자
+        uint256 numOfVotes;
     }
 
     struct Participant{
@@ -138,7 +139,7 @@ contract StageFactory is Ownable{
 
 constructor(string _name, uint256 _totalAmount,uint256 _numOfChoices) public{
     name=_name;
-    totalAmount=_totalAmount;
+    totalAmount=_totalAmount*1000000000000000000;
     numOfChoices=_numOfChoices;
     isFinalized = false; //초기값 flas
     isTimeset = false;
@@ -242,10 +243,11 @@ function finalizeStage(uint _max_choice_index) onlyOwner public{ // 투자 받�
 }
 
 
-contract VoteStageFactory is StageFactory {
+contract VoteStageFactory is StageFactory, ReleasableSimpleCoin {
     
   uint256 public investmentReceived;
   uint256 public investmentRefunded;
+  uint256 public winningChoiceId;
     
   ReleasableToken  public VoteToken; 
       
@@ -310,7 +312,7 @@ contract VoteStageFactory is StageFactory {
                   
   }
   
-  function refund() public {
+  function refund() public { //need to add time check
     if (!isRefundingAllowed) revert();
     
     address investor = msg.sender;
@@ -321,21 +323,39 @@ contract VoteStageFactory is StageFactory {
 
     if (!investor.send(investment)) revert();
   }
-}
-
-contract VotingStage is VoteStageFactory,ReleasableSimpleCoin{
-
-  constructor(string _name, uint256 _totalAmount,uint256 _numOfChoices) VoteStageFactory(_name,_totalAmount,_numOfChoices) public {
   
-  }
-  
-  function Vote(uint _choiceId,uint256 _VoteToken) public{
+  function Vote(uint _choiceId, uint _VoteToken) public{
+      //time needs to be set for voting
       address voter = msg.sender;
-      infoChoice[_choiceId].investment_till_now += _VoteToken;
+      require(_VoteToken<=100);
+      require(coinBalance[voter] != 0);
+      require(coinBalance[voter] >= _VoteToken); // msg.sender has to have at least 1 coin to vote
+      infoChoice[_choiceId].numOfVotes += _VoteToken;
+      coinBalance[voter] -= _VoteToken;
   }
   
-  function endVote() onlyOwner public{
+  function getVotes(uint _choiceId) public view returns(uint){
+      return (infoChoice[_choiceId].numOfVotes);
+  }
+  
+  function tallyVotes() public returns(uint){
+      uint winningVoteCount =0;
+      uint winningChoiceIndex = 0;
       
+      
+      for (uint i=0;i<numOfChoices;i++){
+          if(infoChoice[i].numOfVotes > winningVoteCount){
+              winningVoteCount = infoChoice[i].numOfVotes;
+              winningChoiceIndex=i;
+          }
+      }
+      winningChoiceId=winningChoiceIndex;
+  }
+  
+  function endVote(uint _winningChoiceId) onlyOwner public{
+      require(winningChoiceId==_winningChoiceId);
+      infoChoice[_winningChoiceId].choice_address.transfer(totalAmount);
   }
 }
+
 

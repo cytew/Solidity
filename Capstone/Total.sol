@@ -73,12 +73,19 @@ contract SimpleCoin {
         emit FrozenAccount(target, freeze);
     }
     
-    function getCoinBalance(address target)public returns(uint256) {
+    function getCoinBalance(address target)public view returns(uint256) {
         return coinBalance[target];
     }
+    
+    function burn(uint256 _value) public {
+        require(coinBalance[msg.sender] >= _value);   // Check if the sender has enough
+        coinBalance[msg.sender] -= _value;            // Subtract from the sender
+    }
+
 }
 
 interface ReleasableToken {
+    function burn(uint256 _value) external;
     function getCoinBalance(address target) external returns(uint256) ;
     function mint(address _beneficiary, uint256 _numberOfTokens) external;
     function release() external;
@@ -176,10 +183,6 @@ function getChoices()public view returns(string[]){ // 초이스들 한번에 �
     return (result);
 }
 
-function getChoiceInfo(uint _choiceId) public view returns(string,address,uint){//초이스들 자세하게 각각 확인 가능한 한 함수
-    return (infoChoice[_choiceId].choice_name ,infoChoice[_choiceId].choice_address ,infoChoice[_choiceId].investment_till_now);
-}
-
 function isValidInvestment(uint256 _investment) internal view returns(bool){ //금액 valid 확인 함수
     bool nonZeroInvestment = _investment != 0;
     bool withinPeriod = now >= startTime && now <= endTime;
@@ -188,6 +191,22 @@ function isValidInvestment(uint256 _investment) internal view returns(bool){ //�
 
 function getParticipantInfo(address _participant) public view returns(uint256,string){
     return (info_participant[_participant].investMoney,info_participant[_participant].choice_name);
+}
+
+}
+
+
+contract NonVoteStageFactory is StageFactory{
+    
+    constructor(string _name, uint256 _totalAmount,uint256 _numOfChoices) StageFactory(_name,_totalAmount,_numOfChoices) public{
+    isFinalized = false; //초기값 false
+    isTimeset = false;
+    isInvestmentHigher = false;
+
+  }
+
+function getChoiceInfo(uint _choiceId) public view returns(string,address,uint){//초이스들 자세하게 각각 확인 가능한 한 함수
+    return (infoChoice[_choiceId].choice_name ,infoChoice[_choiceId].choice_address ,infoChoice[_choiceId].investment_till_now);
 }
 
 function attendStage(uint _choice) public payable{//스테이지 참가 함수
@@ -202,6 +221,7 @@ function attendStage(uint _choice) public payable{//스테이지 참가 함수
     info_participant[msg.sender].choice_name =  infoChoice[_choice].choice_name; // 참가자의 투자 초이스 이름
 }
 
+  
 function checkMaxInvestment()public returns(uint){ // 최대 투자 금액 뭔지 확인하는 함수
     uint max;
     max = infoChoice[0].investment_till_now;
@@ -215,6 +235,7 @@ function checkMaxInvestment()public returns(uint){ // 최대 투자 금액 뭔�
     require(max>= totalAmount,"There are no Choice ready"); // 적힌 금액이 총 모금액에 도달하는지 확인
     return max_choice_index;
 }
+
 
 
 function finalizeStage(uint _max_choice_index) onlyOwner public{ // 투자 받은 금액이 총 모금액에 도달했을때 확인
@@ -244,9 +265,10 @@ function finalizeStage(uint _max_choice_index) onlyOwner public{ // 투자 받�
     isFinalized=true;
 }
 //투자 금액이 총 모금액에 도달하지 않았고 시간또한 초과 되었을때 함수 만들어야함
-
-
 }
+
+
+
 /* 추가하면 좋을점 unlimited limited 로 나누어서 진행할수 있게 추가
 그리고 아직 너무 중복되는 함수가 많고 깔끔하지 않음 */
 contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아니라 투자 금액에 따른 투표권을 부여받아 투표권으로 메뉴 선택
@@ -338,11 +360,15 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
       require(VoteToken.getCoinBalance(voter) != 0);
       require(VoteToken.getCoinBalance(voter) >= _VoteToken); // msg.sender has to have at least 1 coin to vote
       infoChoice[_choiceId].numOfVotes += _VoteToken;
-      VoteToken.transfer(0x0000000000000000000000000000000000000000,_VoteToken);
+      //VoteToken.burn(_VoteToken);
+  }
+  
+  function getMyVoteNum() public returns (uint){
+      return VoteToken.getCoinBalance(msg.sender);
   }
 
-  function getVotes(uint _choiceId) public view returns(uint){ //각 초이스별 현재 투표수
-      return (infoChoice[_choiceId].numOfVotes);
+  function getChoiceInfoVotes(uint _choiceId) public view returns(string, uint){ //각 초이스별 현재 투표수
+      return (infoChoice[_choiceId].choice_name,infoChoice[_choiceId].numOfVotes);
   }
 
   function tallyVotes() public returns(uint){ // 투표 최대 득표 확인 교재 내용

@@ -10,12 +10,13 @@ contract StageFactory is Ownable{
     string public name;  // 스테이지 이름
     uint256 public totalAmount; // 총 모금액
     uint256 public numOfChoices; // 초이스 개수
-    uint256 startTime;  // 모집 시작 시간
-    uint256 endTime;    // 모집 종료 시간
+    uint256 public startTime;  // 모집 시작 시간
+    uint256 public endTime;    // 모집 종료 시간
     bool public isFinalized; // 현재 컨트랙트(스테이지) 종료 되었는지
-    bool isTimeset;   // 현재 컨트랙트 기한이 세팅되었는지
+    uint isTimesetOnce;   // 현재 컨트랙트 기한이 세팅되었는지
     bool public isInvestmentHigher;
     bool public isRefundingAllowed;
+    bool isChoiceFinalized;
     uint max_choice_index;  // 목표금액에 달성한다면 최초로 가장 많이 달성한 금액
     mapping(uint   => Choice)      infoChoice;        // 초이스 별 금액과 현재까지 투자받은 비용
     mapping(address=> Participant) info_participant; // 투자자에게 받은 금액과 선택 메뉴
@@ -36,49 +37,62 @@ contract StageFactory is Ownable{
     }
 
 
-constructor(string _name, uint256 _totalAmount,uint256 _numOfChoices) public{
-    name=_name;
-    totalAmount=_totalAmount*1000000000000000000; // ether to wei
-    numOfChoices=_numOfChoices;
-    isFinalized = false; //초기값 flas
-    isTimeset = false;
-    isInvestmentHigher = false;
-    isRefundingAllowed = false;
-}
-
-function setTime(uint256 _endTime) public{ // one time only
-    require(!isTimeset);
-    startTime = now;
-    endTime = startTime + _endTime*1 seconds; //편하게 초 단위로 설정했는데 매번 세팅하기 귀찮아서 뒤에서 안쓴다
-    isTimeset = true;
-}
-
-function setChoices(uint _num,address _choice_address,string _choice_name) public{ //컨트랙트에 초이스를 적어두는 함수
-    require(_num<=numOfChoices); // 최대 개수 제한
-    infoChoice[_num].choice_name=_choice_name; // Choice 이름
-    infoChoice[_num].choice_address =_choice_address; // Choice 즉 추후에 선정된다면 돈을 받을 사장님 address
-}
-
-/*
-function getChoices()public view returns(string[]){ // 초이스들 한번에 확인 할 수 있는 함수 자세하게는 안됨
-    string[] memory result = new string[](numOfChoices);
-    uint counter= 0;
-    for(uint i=0;i<numOfChoices;i++){
-        result[counter] = infoChoice[i].choice_name;
-        counter++;
+    constructor(string _name, uint256 _totalAmount,uint256 _numOfChoices) public{
+        name=_name;
+        totalAmount=_totalAmount*1000000000000000000; // ether to wei
+        numOfChoices=_numOfChoices;
+        isFinalized = false; //초기값 false
+        isChoiceFinalized =false;
+        isTimesetOnce = 0;
+        isInvestmentHigher = false;
+        isRefundingAllowed = false;
     }
-    return (result);
-}
-*/
+    modifier timelimitset() {
+        require(isTimesetOnce == 1);
+        _;
+    }
 
-function isValidInvestment(uint256 _investment) internal view returns(bool){ //금액 valid 확인 함수
-    bool nonZeroInvestment = _investment != 0;
-    bool withinPeriod = now >= startTime && now <= endTime;
-    return nonZeroInvestment && withinPeriod;
-}
+    function setChoices(uint _num,address _choice_address,string _choice_name) public { //컨트랙트에 초이스를 적어두는 함수
+        require(!isChoiceFinalized);
+        require(_num<=numOfChoices); // 최대 개수 제한
+        infoChoice[_num].choice_name=_choice_name; // Choice 이름
+        infoChoice[_num].choice_address =_choice_address; // Choice 즉 추후에 선정된다면 돈을 받을 사장님 address
+    }
 
-function getParticipantInfo(address _participant) public view returns(uint256,string){
-    return (info_participant[_participant].investMoney,info_participant[_participant].choice_name);
-}
+    function finalizeChoice() public{
+        require(!isChoiceFinalized);
+        isChoiceFinalized=true;
+    }
+
+
+    function setTime(uint256 _endTime) public{ // one time only
+        require(isChoiceFinalized);
+        require(isTimesetOnce==0);
+        startTime = now;
+        endTime = startTime + _endTime*1 seconds; //편하게 초 단위로 설정했는데 매번 세팅하기 귀찮아서 뒤에서 안쓴다
+        isTimesetOnce++;
+    }
+
+    /*
+    function getChoices()public view returns(string[]){ // 초이스들 한번에 확인 할 수 있는 함수 자세하게는 안됨
+        string[] memory result = new string[](numOfChoices);
+        uint counter= 0;
+        for(uint i=0;i<numOfChoices;i++){
+            result[counter] = infoChoice[i].choice_name;
+            counter++;
+        }
+        return (result);
+    }
+    */
+
+    function isValidInvestment(uint256 _investment) internal view returns(bool){ //금액 valid 확인 함수
+        bool nonZeroInvestment = _investment != 0;
+        bool withinPeriod = now >= startTime && now <= endTime;
+        return nonZeroInvestment && withinPeriod;
+    }
+
+    function getParticipantInfo(address _participant) public view returns(uint256,string){
+        return (info_participant[_participant].investMoney,info_participant[_participant].choice_name);
+    }
 
 }

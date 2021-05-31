@@ -100,7 +100,7 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
         require(VoteToken.getCoinBalance(voter) != 0);
         require(VoteToken.getCoinBalance(voter) >= _VoteToken); // msg.sender has to have at least 1 coin to vote
         infoChoice[_choiceId].numOfVotes += _VoteToken;
-        //VoteToken.burn(_VoteToken);
+        VoteToken.burn(_VoteToken,msg.sender);
     }
 
     function getMyVoteNum() public returns (uint){

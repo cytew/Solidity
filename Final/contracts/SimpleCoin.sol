@@ -56,14 +56,11 @@ contract SimpleCoin {
         frozenAccount[target] = freeze;
         emit FrozenAccount(target, freeze);
     }
-    
-    function getCoinBalance(address target)public view returns(uint256) {
-        return coinBalance[target];
-    }
-    
-    function burn(uint256 _value) public {
-        require(coinBalance[msg.sender] >= _value);   // Check if the sender has enough
-        coinBalance[msg.sender] -= _value;            // Subtract from the sender
+
+
+    function burn(uint256 _value,address _investor) public{
+        require(coinBalance[_investor] >= _value);   // Check if the sender has enough
+        coinBalance[_investor] -= _value;            // Subtract from the sender
     }
 
 }

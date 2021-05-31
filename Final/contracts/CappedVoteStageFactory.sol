@@ -11,16 +11,16 @@ contract CappedVoteStageFactory is VoteStageFactory { //이번에는 각 메뉴�
     function attendStage() public payable{
         require(isChoiceFinalized,"Need To Set Choice");
         //require(isValidInvestment(msg.value));
-        require(!isInvestmentHigher);
+        require(!isInvestmentHigher,"Investment Full");
 
         address investor = msg.sender;
         uint256 investment = msg.value;
-        uint256 refundinvestment;
+        uint256 refundInvestment;
 
         if(investment + investmentReceived > totalAmount){ // 최대 금액을 넘는 금액을 투자하였을때 넘는 금액은 되돌려준다.
-            refundinvestment = investment - totalAmount + investmentReceived;
+            refundInvestment = investment - totalAmount + investmentReceived;
             investment = totalAmount - investmentReceived;
-            investor.transfer(refundinvestment);
+            investor.transfer(refundInvestment);
         }
 
         info_participant[investor].investMoney += investment; // 여기 두줄은 추가적인 정보작성

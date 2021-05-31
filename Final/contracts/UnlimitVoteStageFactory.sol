@@ -15,7 +15,7 @@ contract UnlimitVoteStageFactory is VoteStageFactory { //이번에는 각 메뉴
 
         address investor = msg.sender;
         uint256 investment = msg.value;
-        uint256 refundinvestment;
+
 
         info_participant[investor].investMoney += investment; // 여기 두줄은 추가적인 정보작성
         investmentReceived += investment;

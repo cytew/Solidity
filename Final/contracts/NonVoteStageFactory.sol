@@ -15,7 +15,7 @@ contract NonVoteStageFactory is StageFactory{
     }
 
     function attendStage(uint _choice) public payable{//스테이지 참가 함수
-        require(isChoiceFinalized);
+        require(isChoiceFinalized,"Choice Not Finalized");
         //require(isValidInvestment(msg.value));
         require(!isInvestmentHigher);
 

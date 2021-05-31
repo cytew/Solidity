@@ -10,6 +10,7 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
     uint256 public investmentReceived;
     uint256 public investmentRefunded;
     uint256 public winningChoiceId;
+    mapping(address => uint256) investorVote;
 
     ReleasableToken  public VoteToken;
 
@@ -29,8 +30,8 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
     }
 
     function assignTokens(address _beneficiary, uint256 _investment) internal {
-
         uint256 _numberOfTokens = calculateNumberOfTokens(_investment);
+        investorVote[_beneficiary]=_numberOfTokens;
         VoteToken.mint(_beneficiary, _numberOfTokens);
     }
 
@@ -101,10 +102,11 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
         require(VoteToken.getCoinBalance(voter) >= _VoteToken); // msg.sender has to have at least 1 coin to vote
         infoChoice[_choiceId].numOfVotes += _VoteToken;
         VoteToken.burn(_VoteToken,msg.sender);
+        investorVote[msg.sender] -=_VoteToken;
     }
 
-    function getMyVoteNum() public returns (uint){
-        return VoteToken.getCoinBalance(msg.sender);
+    function getMyVoteNum() public view returns (uint){
+        return investorVote[msg.sender];
     }
 
     function getChoiceInfoVotes(uint _choiceId) public view returns(string, uint){ //각 초이스별 현재 투표수

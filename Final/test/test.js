@@ -1,5 +1,6 @@
 const NonVoteStageFactory = artifacts.require("NonVoteStageFactory");
-const VoteStageFactory = artifacts.require("VoteStageFactory");
+const CappedVoteStageFactory = artifacts.require("CappedVoteStageFactory");
+const UnlimitVoteStageFactory = artifacts.require("UnlimitVoteStageFactory");
 
 contract("NonVoteStageFactory", function (accounts) {
   it("1,10,7 투자 그리고 사장한테 10 송금 확인", async () => {
@@ -154,63 +155,9 @@ contract("NonVoteStageFactory", function (accounts) {
   });
 });
 
-contract("VoteStageFactory", function (accounts) {
-  it("5,3,2 투자 그리고 각각 투표수 확인 50장 30장 20장 있어야 함", async () => {
-    let instance = await VoteStageFactory.deployed();
-
-    try {
-      let address1 = accounts[0];
-      let address2 = accounts[1];
-      let address3 = accounts[2];
-      let company1 = accounts[3];
-      let company2 = accounts[4];
-      let company3 = accounts[5];
-      await instance.setChoices(0, company1, "chicken");
-      await instance.setChoices(1, company2, "pizza");
-      await instance.setChoices(2, company3, "hamburger");
-
-      await instance.finalizeChoice();
-
-
-      let val1 = 5;
-      let val2 = 3;
-      let val3 = 2;
-      await instance.attendStage( {
-        from: accounts[0],
-        value: web3.toWei(val1.toString(), "ether"),
-      });
-      await instance.attendStage( {
-        from: accounts[1],
-        value: web3.toWei(val2.toString(), "ether"),
-      });
-      await instance.attendStage( {
-        from: accounts[2],
-        value: web3.toWei(val3.toString(), "ether"),
-      });
-
-      let voteNumAddress1 = await instance.getMyVoteNum({from: address1});
-      let voteNumAddress2 = await instance.getMyVoteNum({from: address2});
-      let voteNumAddress3 = await instance.getMyVoteNum({from: address3});
-
-      let testVoteNumAddress1 =50;
-      let testVoteNumAddress2 =30;
-      let testVoteNumAddress3 =20;
-
-      assert.equal(voteNumAddress1, testVoteNumAddress1);
-      assert.equal(voteNumAddress2, testVoteNumAddress2);
-      assert.equal(voteNumAddress3, testVoteNumAddress3);
-
-    } catch (e) {
-      var err = e;
-      console.log(e);
-    }
-
-  });
-});
-
-contract("VoteStageFactory", function (accounts) {
+contract("CappedVoteStageFactory", function (accounts) {
   it("5,3,2 투자 그리고 각각 투표수 확인 50장 30장 20장 있어야 하고 투표 진행 후 결과 확인", async () => {
-    let instance = await VoteStageFactory.deployed();
+    let instance = await CappedVoteStageFactory.deployed();
 
     try {
       let address1 = accounts[0];
@@ -284,3 +231,46 @@ contract("VoteStageFactory", function (accounts) {
   });
 });
 
+
+contract("CappedVoteStageFactory", function (accounts) {
+  it("6,4,2 투자 그러나 2 투자 시도에서 실패", async () => {
+    let instance = await CappedVoteStageFactory.deployed();
+
+    try {
+      let address1 = accounts[0];
+      let address2 = accounts[1];
+      let address3 = accounts[2];
+      let company1 = accounts[3];
+      let company2 = accounts[4];
+      let company3 = accounts[5];
+      await instance.setChoices(0, company1, "chicken");
+      await instance.setChoices(1, company2, "pizza");
+      await instance.setChoices(2, company3, "hamburger");
+
+      await instance.finalizeChoice();
+
+
+      let val1 = 6;
+      let val2 = 4;
+      let val3 = 2;
+      await instance.attendStage( {
+        from: accounts[0],
+        value: web3.toWei(val1.toString(), "ether"),
+      });
+      await instance.attendStage( {
+        from: accounts[1],
+        value: web3.toWei(val2.toString(), "ether"),
+      });
+      await instance.attendStage( {
+        from: accounts[2],
+        value: web3.toWei(val3.toString(), "ether"),
+      });
+
+
+    } catch (e) {
+      var err = e;
+      console.log(e);
+    }
+
+  });
+});

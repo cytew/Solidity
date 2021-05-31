@@ -38,29 +38,6 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
     }
 
     function attendStage() public payable{
-        require(isChoiceFinalized,"Need To Set Choice");
-        //require(isValidInvestment(msg.value));
-        require(!isInvestmentHigher);
-
-        address investor = msg.sender;
-        uint256 investment = msg.value;
-        uint256 refundinvestment;
-
-        if(investment + investmentReceived > totalAmount){ // 최대 금액을 넘는 금액을 투자하였을때 넘는 금액은 되돌려준다.
-            refundinvestment = investment - totalAmount + investmentReceived;
-            investment = totalAmount - investmentReceived;
-            investor.transfer(refundinvestment);
-        }
-
-        info_participant[investor].investMoney += investment; // 여기 두줄은 추가적인 정보작성
-        investmentReceived += investment;
-
-        assignTokens(investor, investment); // 투자하였음으로 금액에 따른 코인을 부여받는다.
-
-        if(investmentReceived == totalAmount){
-            isInvestmentHigher = true;
-        }
-
     }
 
     function finalize() onlyOwner public {
@@ -102,7 +79,6 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
         require(isChoiceFinalized);
         //time needs to be set for voting
         address voter = msg.sender;
-        require(_VoteToken<=100);
         require(VoteToken.getCoinBalance(voter) != 0);
         require(VoteToken.getCoinBalance(voter) >= _VoteToken); // msg.sender has to have at least 1 coin to vote
         infoChoice[_choiceId].numOfVotes += _VoteToken;

@@ -11,6 +11,7 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
     uint256 public investmentRefunded;
     uint256 public winningChoiceId;
     mapping(address => uint256) investorVote;
+    bool public isVotingAllowed;
 
     ReleasableToken  public VoteToken;
 
@@ -18,6 +19,7 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
         isFinalized = false; //초기값 false
         isTimesetOnce = 0;
         isInvestmentHigher = false;
+        isVotingAllowed = false;
         VoteToken = createToken();
     }
 
@@ -70,8 +72,10 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
         bool investmentObjectiveMet = investmentReceived >= totalAmount;
 
         if(isCrowdsaleCompleteWithinTime){
-            if (investmentObjectiveMet)
+            if (investmentObjectiveMet){
+                isVotingAllowed = true;
                 VoteToken.release(); // 서로간 투표권 주고받을수 있다.
+            }
             else
                 isRefundingAllowed = true;
 
@@ -94,6 +98,7 @@ contract VoteStageFactory is StageFactory { //이번에는 각 메뉴별 이 아
     }
 
     function Vote(uint _choiceId, uint _VoteToken) public{
+        require(isVotingAllowed);
         require(isChoiceFinalized);
         //time needs to be set for voting
         address voter = msg.sender;

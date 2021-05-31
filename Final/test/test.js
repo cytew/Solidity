@@ -243,12 +243,14 @@ contract("CappedVoteStageFactory", function (accounts) {
       let company2 = accounts[4];
       let company3 = accounts[5];
 
-      let abeforeAddress1Invest = await web3.eth.getBalance(address1);
-      console.log(beforeAddress1Invest);
-      let bbeforeAddress2Invest = await web3.eth.getBalance(address2);
-      console.log(beforeAddress2Invest);
-      let cbeforeAddress3Invest = await web3.eth.getBalance(address3);
-      console.log(beforeAddress3Invest);
+      console.log('Before investment');
+      let address1Balance = await web3.eth.getBalance(address1);
+      console.log(address1Balance);
+      let address2Balance = await web3.eth.getBalance(address2);
+      console.log(address2Balance);
+      let address3Balance = await web3.eth.getBalance(address3);
+      console.log(address3Balance);
+
       await instance.setChoices(0, company1, "chicken");
       await instance.setChoices(1, company2, "pizza");
       await instance.setChoices(2, company3, "hamburger");
@@ -285,7 +287,7 @@ contract("CappedVoteStageFactory", function (accounts) {
       assert.equal(voteNumAddress3, testVoteNumAddress3);
 
       await instance.finalize();
-
+      console.log('After investment');
       let beforeAddress1Invest = await web3.eth.getBalance(address1);
       console.log(beforeAddress1Invest);
       let beforeAddress2Invest = await web3.eth.getBalance(address2);
@@ -293,8 +295,10 @@ contract("CappedVoteStageFactory", function (accounts) {
       let beforeAddress3Invest = await web3.eth.getBalance(address3);
       console.log(beforeAddress3Invest);
 
-      await instance.refund();
-
+      await instance.refund({from:address1}); //Refund each time
+      await instance.refund({from:address2});
+      await instance.refund({from:address3});
+      console.log('After Refund');
       let afterAddress1Invest = await web3.eth.getBalance(address1);
       console.log(afterAddress1Invest);
       let afterAddress2Invest = await web3.eth.getBalance(address2);

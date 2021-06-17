@@ -101,17 +101,6 @@ contract StageFactory is Ownable{
         isTimesetOnce++;
     }
 
-    /*
-    function getChoices()public view returns(string[]){ // 초이스들 한번에 확인 할 수 있는 함수 자세하게는 안됨
-        string[] memory result = new string[](numOfChoices);
-        uint counter= 0;
-        for(uint i=0;i<numOfChoices;i++){
-            result[counter] = infoChoice[i].choice_name;
-            counter++;
-        }
-        return (result);
-    }
-    */
 
     function isValidInvestment(uint256 _investment) internal view returns(bool){ //금액 valid 확인 함수
         bool nonZeroInvestment = _investment != 0;

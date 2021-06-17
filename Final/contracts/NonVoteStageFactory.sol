@@ -14,28 +14,6 @@ contract NonVoteStageFactory is StageFactory{
         return (infoChoice[_choiceId].choice_name ,infoChoice[_choiceId].choice_address ,infoChoice[_choiceId].investment_till_now);
     }
 
-    function attendStage(uint _choice) public payable{//스테이지 참가 함수
-        require(isChoiceFinalized,"Choice Not Finalized");
-        //require(isValidInvestment(msg.value));
-        require(!isInvestmentHigher);
-
-        address investor = msg.sender;
-        uint256 investment = msg.value;
-        uint256 refundinvestment;
-
-        if(investment + infoChoice[_choice].investment_till_now > totalAmount){ // 최대 금액을 넘는 금액을 투자하였을때 넘는 금액은 되돌려준다.
-            refundinvestment = investment - totalAmount + infoChoice[_choice].investment_till_now;
-            investment = totalAmount - infoChoice[_choice].investment_till_now;
-            investor.transfer(refundinvestment);
-        }
-
-        infoChoice[_choice].numOfParticipants++; // 초이스 참가 인원 추가
-        infoChoice[_choice].investment_till_now += investment; // 초이스별 현재까지 투자받은 금액 += balance
-        infoChoice[_choice].participantsOfChoice.push(investor);
-        info_participant[investor].investMoney += investment; // 참가자의 현재까지 투자 금액
-        info_participant[investor].choice_name =  infoChoice[_choice].choice_name; // 참가자의 투자 초이스 이름
-    }
-
 
     function checkMaxInvestment()internal returns(uint){ // 최대 투자 금액 뭔지 확인하는 함수
         uint max;

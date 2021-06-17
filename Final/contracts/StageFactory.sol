@@ -56,7 +56,7 @@ contract StageFactory is Ownable{
         require(!isChoiceFinalized);
         require(_num<=numOfChoices); // 최대 개수 제한
         infoChoice[_num].choice_name=_choice_name; // Choice 이름
-        infoChoice[_num].choice_address =parseAddr(_choice_address);; // Choice 즉 추후에 선정된다면 돈을 받을 사장님 address
+        infoChoice[_num].choice_address =parseAddr(_choice_address); // Choice 즉 추후에 선정된다면 돈을 받을 사장님 address
     }
 
     function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {

@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./NonVoteStageFactory.sol";
 
-contract UnlimitCappedVoteStageFactory is NonVoteStageFactory { //이번에는 각 메뉴별 이 아니라 투자 금액에 따른 투표권을 부여받아 투표권으로 메뉴 선택
+contract UnlimitNonVoteStageFactory is NonVoteStageFactory { //이번에는 각 메뉴별 이 아니라 투자 금액에 따른 투표권을 부여받아 투표권으로 메뉴 선택
     constructor(string _name, uint256 _totalAmount,uint256 _numOfChoices) NonVoteStageFactory(_name,_totalAmount,_numOfChoices) public{
     }
 

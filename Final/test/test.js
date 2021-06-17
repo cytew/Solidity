@@ -2,10 +2,10 @@ const CappedNonVoteStageFactory = artifacts.require("CappedNonVoteStageFactory")
 const UnlimitNonVoteStageFactory = artifacts.require("UnlimitNonVoteStageFactory");
 const CappedVoteStageFactory = artifacts.require("CappedVoteStageFactory");
 const UnlimitVoteStageFactory = artifacts.require("UnlimitVoteStageFactory");
-
+/*
 contract("CappedNonVoteStageFactory", function (accounts) {
   it("1,10,7 투자 그리고 사장한테 10 송금 확인", async () => {
-    let instance = await NonVoteStageFactory.deployed();
+    let instance = await CappedNonVoteStageFactory.deployed();
 
     try {
       let address1 = accounts[0];
@@ -58,7 +58,7 @@ contract("CappedNonVoteStageFactory", function (accounts) {
 contract("CappedNonVoteStageFactory", function (accounts) {
   it("4,1,7 투자 그리고 실패했음으로 Refund 실행", async () => {
 
-    let instance = await NonVoteStageFactory.deployed();
+    let instance = await CappedNonVoteStageFactory.deployed();
 
     try {
       let address1 = accounts[0];
@@ -107,7 +107,7 @@ contract("CappedNonVoteStageFactory", function (accounts) {
 
 contract("CappedNonVoteStageFactory", function (accounts) {
   it("1,1,1 투자 그리고 10 달성실패로 There is No Choice Ready 확인", async () => {
-    let instance = await NonVoteStageFactory.deployed();
+    let instance = await CappedNonVoteStageFactory.deployed();
     let catchRevert = require("./exceptions.js").catchRevert;
     try {
       let address1 = accounts[0];
@@ -156,10 +156,10 @@ contract("CappedNonVoteStageFactory", function (accounts) {
     //assert.isOk(err instanceof Error, "final");
   });
 });
-
-contract("UnlimitedNonVoteStageFactory", function (accounts) {
+*/
+contract("UnlimitNonVoteStageFactory", function (accounts) {
   it("1,8,11 투자 그리고 10 초과했음에도 Unlimited 임으로 모금액을 받는 내용 확인", async () => {
-    let instance = await UnlimitedNonVoteStageFactory.deployed();
+    let instance = await UnlimitNonVoteStageFactory.deployed();
     let catchRevert = require("./exceptions.js").catchRevert;
     try {
       let address1 = accounts[0];
@@ -198,9 +198,14 @@ contract("UnlimitedNonVoteStageFactory", function (accounts) {
       let hamburger = await instance.getChoiceInfo(2);
       console.log(hamburger);
 
-
+      let beforefinalizebalance3 = await web3.eth.getBalance(company3);
+     
       await instance.finalizeStage(2);
-
+      
+      let afterfinalizebalance3 = await web3.eth.getBalance(company3);
+      
+      console.log(beforefinalizebalance3);
+	console.log(afterfinalizebalance3);
     } catch (e) {
       var err = e;
       console.log(e);
@@ -208,10 +213,10 @@ contract("UnlimitedNonVoteStageFactory", function (accounts) {
     //assert.isOk(err instanceof Error, "final");
   });
 });
-
-contract("UnlimitedNonVoteStageFactory", function (accounts) {
+/*
+contract("UnlimitNonVoteStageFactory", function (accounts) {
   it("1,1,1 투자 그리고 10 달성실패로 There is No Choice Ready 확인", async () => {
-    let instance = await UnlimitedNonVoteStageFactory.deployed();
+    let instance = await UnlimitNonVoteStageFactory.deployed();
     let catchRevert = require("./exceptions.js").catchRevert;
     try {
       let address1 = accounts[0];
@@ -599,3 +604,4 @@ contract("UnlimitVoteStageFactory", function (accounts) {
 
   });
 });
+*/

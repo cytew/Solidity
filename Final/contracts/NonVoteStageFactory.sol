@@ -31,34 +31,7 @@ contract NonVoteStageFactory is StageFactory{
 
 
 
-    function finalizeStage(uint _max_choice_index) onlyOwner public{// 투자 받은 금액이 총 모금액에 도달했을때 확인
-        //require(now<endTime);
-        require(isChoiceFinalized);
-        require(checkMaxInvestment()==_max_choice_index,"Not a Max Choice");
-        require(!isFinalized);
-        for(uint i =0;i<numOfChoices;i++){ // refund for those who are not selected
 
-            if (i == _max_choice_index){ // 목표 금액에 도달했고 목표 금액 넘은 것 중에서 최대투자 금액 index
-                infoChoice[i].choice_address.transfer(totalAmount); //사장님께 송금
-                infoChoice[i].investment_till_now -= totalAmount;
-
-                for(uint j=0;j<infoChoice[i].numOfParticipants;j++){ // 있어도 그만 없어도 그만
-                    address selected = infoChoice[i].participantsOfChoice[j];
-                    info_participant[selected].investMoney -= info_participant[selected].investMoney;
-                }
-            }
-            else{
-                for(uint k=0;k<infoChoice[i].numOfParticipants;k++){ // 얘네는 선택 받지 못한 애들이라서 돈 돌려줘야함
-                    address notSelected = infoChoice[i].participantsOfChoice[k];
-                    notSelected.transfer(info_participant[notSelected].investMoney);
-                    info_participant[notSelected].investMoney -= info_participant[notSelected].investMoney;
-                }
-                infoChoice[i].investment_till_now = 0;
-            }
-        }
-
-        isFinalized=true;
-    }
 
     function refund() public{ //투자 금액이 총 모금액에 도달하지 않았고 시간또한 초과 되었을때 함수
         //require(now>=endTime);
